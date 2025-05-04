@@ -94,19 +94,11 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Featured Post Section */}
-        <section className="py-10">
-          <div className="container">
-            <h2 className="text-2xl font-semibold mb-6">Featured Post</h2>
-            <PostCard post={featuredPost} featured={true} />
-          </div>
-        </section>
-
-        {/* Category Blocks */}
+        {/* Category Blocks - Now above featured post and in 3-column grid */}
         <section className="py-10 bg-muted/30">
           <div className="container">
             <h2 className="text-2xl font-semibold mb-6">Main Categories</h2>
-            <div className="grid gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {categories.map((category) => (
                 <CategorySection
                   key={category.slug}
@@ -118,6 +110,14 @@ const Index = () => {
                 />
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Featured Post Section */}
+        <section className="py-10">
+          <div className="container">
+            <h2 className="text-2xl font-semibold mb-6">Featured Post</h2>
+            <PostCard post={featuredPost} featured={true} />
           </div>
         </section>
 

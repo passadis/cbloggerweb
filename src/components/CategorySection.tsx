@@ -12,16 +12,16 @@ interface CategorySectionProps {
 
 const CategorySection = ({ title, description, image, slug, color }: CategorySectionProps) => {
   return (
-    <Card className="overflow-hidden border card-hover">
-      <div className="grid md:grid-cols-5">
-        <div className="md:col-span-2 overflow-hidden">
+    <Card className="overflow-hidden border card-hover h-full">
+      <div className="flex flex-col h-full">
+        <div className="h-48 overflow-hidden">
           <img 
             src={image} 
             alt={title} 
-            className="w-full h-full object-cover aspect-video md:aspect-auto"
+            className="w-full h-full object-cover"
           />
         </div>
-        <CardContent className="p-6 md:col-span-3 flex flex-col justify-between">
+        <CardContent className="p-6 flex flex-col justify-between flex-grow">
           <div>
             <h3 className={`text-2xl font-semibold mb-2 text-${color}`}>
               {title}

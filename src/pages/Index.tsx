@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
 import CategorySection from "@/components/CategorySection";
 import { Link } from "react-router-dom";
+import AuthorCard from "@/components/AuthorCard";
 
 const Index = () => {
   // Mock data for demo purposes
@@ -135,6 +136,18 @@ const Index = () => {
                 <PostCard key={post.id} post={post} />
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Author Bio Section with MVP Badge */}
+        <section className="py-10 bg-muted/30">
+          <div className="container">
+            <AuthorCard 
+              name="John Doe"
+              bio="Microsoft Azure MVP with over 10 years of experience in cloud technologies, specializing in Azure solutions, Microsoft 365 implementations, and DevOps practices. Passionate about sharing knowledge and helping others succeed in the Microsoft ecosystem."
+              avatar="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&auto=format&fit=crop"
+              mvpBadge="/lovable-uploads/bfff31c1-2b93-4511-a049-181189c6fe7a.png"
+            />
           </div>
         </section>
 

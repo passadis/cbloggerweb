@@ -11,13 +11,12 @@ const Navbar = () => {
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="relative h-8 w-8 overflow-hidden rounded bg-gradient-to-br from-azure to-blue-600">
-              <div className="absolute inset-0 flex items-center justify-center text-white font-outfit font-bold">
-                C
-              </div>
-            </div>
-            <span className="font-outfit font-semibold text-xl">CloudBlogger</span>
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/lovable-uploads/0eef50fc-dbda-45e2-bd58-3d08c5481654.png" 
+              alt="CloudBlogger Logo" 
+              className="h-8" 
+            />
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">

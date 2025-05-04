@@ -10,12 +10,11 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="relative h-8 w-8 overflow-hidden rounded bg-gradient-to-br from-azure to-blue-600">
-                <div className="absolute inset-0 flex items-center justify-center text-white font-outfit font-bold">
-                  C
-                </div>
-              </div>
-              <span className="font-outfit font-semibold text-xl">CloudBlogger</span>
+              <img 
+                src="/lovable-uploads/0eef50fc-dbda-45e2-bd58-3d08c5481654.png" 
+                alt="CloudBlogger Logo" 
+                className="h-8" 
+              />
             </Link>
             <p className="text-sm text-muted-foreground max-w-md">
               Your daily companion for Azure Solutions, Workshops and Microsoft 365 and DevOps tips and tricks!

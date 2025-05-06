@@ -24,5 +24,17 @@ export type Database = {
         Update: Partial<Omit<Post, 'id' | 'created_at' | 'updated_at'>>;
       };
     };
+    Views: {
+      [_ in never]: never
+    };
+    Functions: {
+      [_ in never]: never
+    };
+    Enums: {
+      [_ in never]: never
+    };
+    CompositeTypes: {
+      [_ in never]: never
+    };
   };
 };

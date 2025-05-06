@@ -1,5 +1,6 @@
 
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Post {
   id: string;
@@ -14,74 +15,20 @@ export interface Post {
   status: "published" | "draft";
 }
 
-// Mock database storage - in a real app, this would be replaced with Supabase
-const LOCAL_STORAGE_KEY = "blog_posts";
-
-// Initialize with some mock data if storage is empty
-const initializeStorage = () => {
-  const existingPosts = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (!existingPosts) {
-    const initialPosts: Post[] = [
-      {
-        id: "1",
-        title: "The Ultimate Guide to Build Your Custom AI Server",
-        content: "<p>This is a sample content for your blog post.</p>",
-        excerpt: "Learn how to build a powerful custom AI server using Azure services.",
-        slug: "ultimate-guide-custom-ai-server",
-        category: "Azure",
-        date: "2023-03-26",
-        tags: ["AI", "Azure", "Cloud"],
-        featuredImage: "https://placehold.co/600x400?text=AI+Server",
-        status: "published",
-      },
-      {
-        id: "2",
-        title: "The Brand New Azure AI Agent Service at Your Fingertips",
-        content: "<p>Explore the new Azure AI Agent Service.</p>",
-        excerpt: "Get to know the latest Azure AI Agent Service and how it can help your business.",
-        slug: "azure-ai-agent-service",
-        category: "Azure",
-        date: "2023-02-15",
-        tags: ["AI", "Azure", "Agent"],
-        featuredImage: "https://placehold.co/600x400?text=Azure+AI",
-        status: "published",
-      },
-      {
-        id: "3",
-        title: "Microsoft 365 Copilot: The Ultimate Productivity Assistant",
-        content: "<p>Boost your productivity with Microsoft 365 Copilot.</p>",
-        excerpt: "Learn how Microsoft 365 Copilot can revolutionize your workflow.",
-        slug: "microsoft-365-copilot",
-        category: "Microsoft 365",
-        date: "2023-04-10",
-        tags: ["Microsoft 365", "Copilot", "Productivity"],
-        featuredImage: "https://placehold.co/600x400?text=Microsoft+Copilot",
-        status: "published",
-      },
-      {
-        id: "4",
-        title: "DevOps Automation: Streamline Your CI/CD Pipeline",
-        content: "<p>Streamline your development process with DevOps automation.</p>",
-        excerpt: "Discover how to optimize your CI/CD pipeline for maximum efficiency.",
-        slug: "devops-automation",
-        category: "DevOps",
-        date: "2023-05-20",
-        tags: ["DevOps", "Automation", "CI/CD"],
-        featuredImage: "https://placehold.co/600x400?text=DevOps",
-        status: "draft",
-      },
-    ];
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialPosts));
-  }
-};
-
-// Initialize the local storage on module load
-initializeStorage();
-
 const getAllPosts = async (): Promise<Post[]> => {
   try {
-    const posts = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return posts ? JSON.parse(posts) : [];
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .order('date', { ascending: false });
+      
+    if (error) {
+      console.error("Error fetching posts:", error);
+      toast.error("Failed to fetch posts");
+      return [];
+    }
+    
+    return data.map(transformDatabasePost);
   } catch (error) {
     console.error("Error fetching posts:", error);
     toast.error("Failed to fetch posts");
@@ -91,8 +38,19 @@ const getAllPosts = async (): Promise<Post[]> => {
 
 const getPostById = async (id: string): Promise<Post | null> => {
   try {
-    const posts = await getAllPosts();
-    return posts.find(post => post.id === id) || null;
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (error) {
+      console.error(`Error fetching post with ID ${id}:`, error);
+      toast.error("Failed to fetch post");
+      return null;
+    }
+    
+    return transformDatabasePost(data);
   } catch (error) {
     console.error(`Error fetching post with ID ${id}:`, error);
     toast.error("Failed to fetch post");
@@ -102,8 +60,19 @@ const getPostById = async (id: string): Promise<Post | null> => {
 
 const getPostBySlug = async (slug: string): Promise<Post | null> => {
   try {
-    const posts = await getAllPosts();
-    return posts.find(post => post.slug === slug) || null;
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+      
+    if (error) {
+      console.error(`Error fetching post with slug ${slug}:`, error);
+      toast.error("Failed to fetch post");
+      return null;
+    }
+    
+    return transformDatabasePost(data);
   } catch (error) {
     console.error(`Error fetching post with slug ${slug}:`, error);
     toast.error("Failed to fetch post");
@@ -111,18 +80,55 @@ const getPostBySlug = async (slug: string): Promise<Post | null> => {
   }
 };
 
+// Transform database post object to our Post interface
+// This handles any field name differences between DB and frontend
+const transformDatabasePost = (dbPost: any): Post => {
+  return {
+    id: dbPost.id,
+    title: dbPost.title,
+    content: dbPost.content,
+    excerpt: dbPost.excerpt,
+    slug: dbPost.slug,
+    category: dbPost.category,
+    date: dbPost.date,
+    tags: dbPost.tags,
+    featuredImage: dbPost.featured_image,
+    status: dbPost.status as "published" | "draft"
+  };
+};
+
+// Transform our Post interface to database format
+const transformToDbPost = (post: Omit<Post, "id">): any => {
+  return {
+    title: post.title,
+    content: post.content,
+    excerpt: post.excerpt,
+    slug: post.slug,
+    category: post.category,
+    date: post.date,
+    tags: post.tags,
+    featured_image: post.featuredImage,
+    status: post.status
+  };
+};
+
 const createPost = async (post: Omit<Post, "id">): Promise<Post> => {
   try {
-    const posts = await getAllPosts();
-    const newPost = {
-      ...post,
-      id: crypto.randomUUID(),
-    };
+    const dbPost = transformToDbPost(post);
+    const { data, error } = await supabase
+      .from('posts')
+      .insert(dbPost)
+      .select()
+      .single();
     
-    posts.push(newPost);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(posts));
+    if (error) {
+      console.error("Error creating post:", error);
+      toast.error("Failed to create post");
+      throw error;
+    }
+    
     toast.success("Post created successfully");
-    return newPost;
+    return transformDatabasePost(data);
   } catch (error) {
     console.error("Error creating post:", error);
     toast.error("Failed to create post");
@@ -132,23 +138,22 @@ const createPost = async (post: Omit<Post, "id">): Promise<Post> => {
 
 const updatePost = async (id: string, updatedPost: Omit<Post, "id">): Promise<Post> => {
   try {
-    const posts = await getAllPosts();
-    const postIndex = posts.findIndex(post => post.id === id);
+    const dbPost = transformToDbPost(updatedPost);
+    const { data, error } = await supabase
+      .from('posts')
+      .update(dbPost)
+      .eq('id', id)
+      .select()
+      .single();
     
-    if (postIndex === -1) {
-      toast.error("Post not found");
-      throw new Error("Post not found");
+    if (error) {
+      console.error(`Error updating post with ID ${id}:`, error);
+      toast.error("Failed to update post");
+      throw error;
     }
     
-    const post = {
-      ...updatedPost,
-      id,
-    };
-    
-    posts[postIndex] = post;
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(posts));
     toast.success("Post updated successfully");
-    return post;
+    return transformDatabasePost(data);
   } catch (error) {
     console.error(`Error updating post with ID ${id}:`, error);
     toast.error("Failed to update post");
@@ -158,15 +163,17 @@ const updatePost = async (id: string, updatedPost: Omit<Post, "id">): Promise<Po
 
 const deletePost = async (id: string): Promise<void> => {
   try {
-    const posts = await getAllPosts();
-    const filteredPosts = posts.filter(post => post.id !== id);
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', id);
     
-    if (filteredPosts.length === posts.length) {
-      toast.error("Post not found");
-      throw new Error("Post not found");
+    if (error) {
+      console.error(`Error deleting post with ID ${id}:`, error);
+      toast.error("Failed to delete post");
+      throw error;
     }
     
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filteredPosts));
     toast.success("Post deleted successfully");
   } catch (error) {
     console.error(`Error deleting post with ID ${id}:`, error);
@@ -177,8 +184,20 @@ const deletePost = async (id: string): Promise<void> => {
 
 const getPostCategories = async (): Promise<string[]> => {
   try {
-    const posts = await getAllPosts();
-    const categories = [...new Set(posts.map(post => post.category))];
+    const { data, error } = await supabase
+      .from('posts')
+      .select('category')
+      .order('category')
+      .is('category', 'not.null');
+    
+    if (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories");
+      return [];
+    }
+    
+    // Extract unique categories
+    const categories = [...new Set(data.map(post => post.category))];
     return categories;
   } catch (error) {
     console.error("Error fetching categories:", error);

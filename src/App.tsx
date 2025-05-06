@@ -9,6 +9,11 @@ import Index from "./pages/Index";
 import PostPage from "./pages/PostPage";
 import CategoryPage from "./pages/CategoryPage";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./pages/AdminLayout";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPosts from "./pages/AdminPosts";
+import AdminNewPost from "./pages/AdminNewPost";
+import AdminSettings from "./pages/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +27,15 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/post/:slug" element={<PostPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
+          
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="posts" element={<AdminPosts />} />
+            <Route path="new-post" element={<AdminNewPost />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

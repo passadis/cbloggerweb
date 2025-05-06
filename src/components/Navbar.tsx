@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, User } from "lucide-react";
 
 const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -36,7 +36,7 @@ const Navbar = () => {
             </Link>
           </nav>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
           {searchOpen ? (
             <div className="relative">
               <input
@@ -62,6 +62,14 @@ const Navbar = () => {
               <Search className="h-4 w-4" />
             </button>
           )}
+          <Link 
+            to="/admin" 
+            className="h-9 px-3 rounded-md flex items-center justify-center hover:bg-secondary transition-colors"
+            aria-label="Admin"
+          >
+            <User className="h-4 w-4 mr-2" />
+            <span className="hidden md:inline">Admin</span>
+          </Link>
         </div>
       </div>
     </header>

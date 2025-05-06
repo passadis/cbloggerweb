@@ -1,160 +1,94 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
+import { supabase } from "@/integrations/supabase/client";
+import { transformDatabasePost } from "@/services/post/transformers";
+import type { Post } from "@/services/post/types";
 
 const CategoryPage = () => {
   const { slug } = useParams();
-  const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   
-  // Mock posts for demo purposes
-  const [posts, setPosts] = useState<any[]>([]);
-  
+  // Set category information based on the slug
   useEffect(() => {
-    // Simulate API call to fetch category data
-    const fetchCategoryData = () => {
-      setTimeout(() => {
-        // Set category information based on the slug
-        switch (slug) {
-          case "azure":
-            setCategoryName("Microsoft Azure");
-            setCategoryDescription("Labs, Guides and Designs for Azure cloud solutions and services.");
-            setPosts([
-              {
-                id: "1",
-                title: "The Ultimate Guide to Build Your Custom AI Server",
-                excerpt: "An Ultimate Guide for AI Development and Hosting: Building your own Custom AI Server with Dashboard and embedded Client UI.",
-                slug: "ultimate-guide-custom-ai-server",
-                featuredImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop",
-                category: "Azure",
-                date: "2023-03-26",
-                tags: ["AI", "Azure", "Azure AI", "Azure AI Foundry", "Azure OpenAI"],
-              },
-              {
-                id: "2",
-                title: "The Brand New Azure AI Agent Service at Your Fingertips",
-                excerpt: "Azure AI Agent Service is the newest addition in Azure AI Foundry, making the process of creating Agents easier and fun! Let's see that in action.",
-                slug: "azure-ai-agent-service",
-                featuredImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop",
-                category: "Azure",
-                date: "2023-02-15",
-                tags: ["Azure", "Azure AI", "Azure AI Agent Service", "Azure OpenAI"],
-              },
-              {
-                id: "3",
-                title: "Getting Started with Azure OpenAI",
-                excerpt: "A beginner's guide to setting up and using Azure OpenAI services for your applications.",
-                slug: "getting-started-azure-openai",
-                featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&auto=format&fit=crop",
-                category: "Azure",
-                date: "2023-01-20",
-                tags: ["Azure", "OpenAI", "AI", "Getting Started"],
-              },
-              {
-                id: "4",
-                title: "Azure Virtual Machines Best Practices",
-                excerpt: "Learn how to optimize your Azure virtual machines for performance, cost, and security.",
-                slug: "azure-vm-best-practices",
-                featuredImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop",
-                category: "Azure",
-                date: "2023-04-15",
-                tags: ["Azure", "Virtual Machines", "Best Practices", "Cloud"],
-              },
-            ]);
-            break;
-            
-          case "microsoft-365":
-            setCategoryName("Microsoft 365");
-            setCategoryDescription("Hints and Tips for the Best 365 Experience!");
-            setPosts([
-              {
-                id: "5",
-                title: "Microsoft 365 Copilot: The Ultimate Productivity Assistant",
-                excerpt: "Learn how Microsoft 365 Copilot is transforming productivity with AI-powered assistance across all Microsoft 365 apps.",
-                slug: "microsoft-365-copilot",
-                featuredImage: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&auto=format&fit=crop",
-                category: "Microsoft 365",
-                date: "2023-04-10",
-                tags: ["Microsoft 365", "Copilot", "AI", "Productivity"],
-              },
-              {
-                id: "6",
-                title: "Teams Best Practices for Remote Work",
-                excerpt: "Optimize your Microsoft Teams setup for better remote work collaboration and productivity.",
-                slug: "teams-remote-work-practices",
-                featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop",
-                category: "Microsoft 365",
-                date: "2023-05-05",
-                tags: ["Microsoft 365", "Teams", "Remote Work", "Collaboration"],
-              },
-              {
-                id: "7",
-                title: "SharePoint Online Administration Tips",
-                excerpt: "Essential tips for managing and optimizing your SharePoint Online environment.",
-                slug: "sharepoint-online-administration",
-                featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&auto=format&fit=crop",
-                category: "Microsoft 365",
-                date: "2023-03-12",
-                tags: ["Microsoft 365", "SharePoint", "Administration"],
-              },
-            ]);
-            break;
-            
-          case "devops":
-            setCategoryName("DevOps");
-            setCategoryDescription("Collection of Ideas and Developments for DevOps practices and tools.");
-            setPosts([
-              {
-                id: "8",
-                title: "DevOps Automation: Streamline Your CI/CD Pipeline",
-                excerpt: "Discover best practices for automating your DevOps workflows and optimizing your continuous integration and deployment processes.",
-                slug: "devops-automation-cicd",
-                featuredImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop",
-                category: "DevOps",
-                date: "2023-05-20",
-                tags: ["DevOps", "CI/CD", "Automation", "Pipeline"],
-              },
-              {
-                id: "9",
-                title: "Kubernetes for Beginners: Getting Started Guide",
-                excerpt: "A comprehensive guide to getting started with Kubernetes container orchestration.",
-                slug: "kubernetes-beginners-guide",
-                featuredImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop",
-                category: "DevOps",
-                date: "2023-02-28",
-                tags: ["DevOps", "Kubernetes", "Containers", "Orchestration"],
-              },
-              {
-                id: "10",
-                title: "Infrastructure as Code with Terraform",
-                excerpt: "Learn how to manage your infrastructure efficiently using Terraform and infrastructure as code principles.",
-                slug: "terraform-infrastructure-code",
-                featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop",
-                category: "DevOps",
-                date: "2023-04-02",
-                tags: ["DevOps", "Terraform", "Infrastructure as Code", "Cloud"],
-              },
-            ]);
-            break;
-            
-          default:
-            setCategoryName("Category Not Found");
-            setCategoryDescription("The requested category does not exist.");
-            setPosts([]);
+    switch (slug?.toLowerCase()) {
+      case "azure":
+        setCategoryName("Microsoft Azure");
+        setCategoryDescription("Labs, Guides and Designs for Azure cloud solutions and services.");
+        break;
+      case "microsoft-365":
+        setCategoryName("Microsoft 365");
+        setCategoryDescription("Hints and Tips for the Best 365 Experience!");
+        break;
+      case "devops":
+        setCategoryName("DevOps");
+        setCategoryDescription("Collection of Ideas and Developments for DevOps practices and tools.");
+        break;
+      default:
+        setCategoryName("");
+        setCategoryDescription("");
+    }
+  }, [slug]);
+
+  // Validate if this is one of our supported categories
+  const isValidCategory = ["azure", "microsoft-365", "devops"].includes(slug?.toLowerCase() || "");
+
+  // Fetch posts from the database filtered by category
+  const { 
+    data: posts = [], 
+    isLoading,
+    error 
+  } = useQuery({
+    queryKey: ['posts', 'category', slug],
+    queryFn: async () => {
+      try {
+        if (!slug) return [];
+        
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('category', getCategoryFromSlug(slug))
+          .order('date', { ascending: false });
+          
+        if (error) {
+          console.error("Error fetching posts:", error);
+          return [];
         }
         
-        setLoading(false);
-      }, 500);
-    };
-    
-    fetchCategoryData();
-  }, [slug]);
-  
-  if (loading) {
+        return data.map(transformDatabasePost);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+        return [];
+      }
+    },
+    enabled: isValidCategory
+  });
+
+  // Helper function to convert slug to proper category name
+  const getCategoryFromSlug = (slug: string): string => {
+    switch (slug.toLowerCase()) {
+      case "azure":
+        return "Azure";
+      case "microsoft-365":
+        return "Microsoft 365";
+      case "devops":
+        return "DevOps";
+      default:
+        return "";
+    }
+  };
+
+  // If not a valid category, redirect to 404
+  if (!isValidCategory) {
+    return <Navigate to="/not-found" />;
+  }
+
+  if (isLoading) {
     return (
       <>
         <Navbar />

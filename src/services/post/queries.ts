@@ -71,24 +71,52 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
 
 export const getPostCategories = async (): Promise<string[]> => {
   try {
+    // First try to fetch unique categories from the database
     const { data, error } = await supabase
       .from('posts')
       .select('category')
-      .order('category')
-      .is('category', 'not.null');
+      .not('category', 'is', null);
     
     if (error) {
       console.error("Error fetching categories:", error);
       toast.error("Failed to fetch categories");
-      return [];
+      return ["Azure", "Microsoft 365", "DevOps"]; // Default categories
     }
     
     // Extract unique categories
-    const categories = [...new Set(data.map(post => post.category))];
-    return categories;
+    const uniqueCategories = [...new Set(data.map(post => post.category))];
+    
+    // If no categories found in the database, return our three standard categories
+    if (uniqueCategories.length === 0) {
+      return ["Azure", "Microsoft 365", "DevOps"];
+    }
+    
+    return uniqueCategories;
   } catch (error) {
     console.error("Error fetching categories:", error);
     toast.error("Failed to fetch categories");
+    return ["Azure", "Microsoft 365", "DevOps"]; // Default categories
+  }
+};
+
+export const getPostsByCategory = async (category: string): Promise<Post[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('category', category)
+      .order('date', { ascending: false });
+      
+    if (error) {
+      console.error(`Error fetching posts for category ${category}:`, error);
+      toast.error("Failed to fetch posts");
+      return [];
+    }
+    
+    return data.map(transformDatabasePost);
+  } catch (error) {
+    console.error(`Error fetching posts for category ${category}:`, error);
+    toast.error("Failed to fetch posts");
     return [];
   }
 };

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Users, Tag, Calendar } from "lucide-react";
-import { postService } from "@/services/postService";
+import { postService } from "@/services/post";
 import { formatDistance } from "date-fns";
 
 const AdminDashboard = () => {

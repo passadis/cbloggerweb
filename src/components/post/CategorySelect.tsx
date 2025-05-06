@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { postService } from "@/services/postService";
+import { postService } from "@/services/post";
 
 interface CategorySelectProps {
   value: string;

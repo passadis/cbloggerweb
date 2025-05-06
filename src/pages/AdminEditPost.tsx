@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PostEditor from "@/components/PostEditor";
-import { postService, Post } from "@/services/postService";
+import { postService, Post } from "@/services/post";
 import { toast } from "sonner";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 

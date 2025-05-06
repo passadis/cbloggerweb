@@ -14,7 +14,7 @@ import {
 import { Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { postService, Post } from "@/services/postService";
+import { postService, Post } from "@/services/post";
 import { 
   AlertDialog,
   AlertDialogAction,

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -5,7 +6,7 @@ import PostCard from "@/components/PostCard";
 import CategorySection from "@/components/CategorySection";
 import { Link } from "react-router-dom";
 import AuthorCard from "@/components/AuthorCard";
-import { postService, type Post } from "@/services/postService";
+import { postService, type Post } from "@/services/post";
 import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {

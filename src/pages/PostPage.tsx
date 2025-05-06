@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import AuthorCard from "@/components/AuthorCard";
 import PostCard from "@/components/PostCard";
-import { postService, type Post } from "@/services/postService";
+import { postService, type Post } from "@/services/post";
 
 const PostPage = () => {
   const { slug } = useParams<{ slug: string }>();

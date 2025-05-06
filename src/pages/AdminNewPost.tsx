@@ -1,7 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
 import PostEditor from "@/components/PostEditor";
-import { postService } from "@/services/postService";
+import { postService } from "@/services/post";
 import { toast } from "sonner";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 

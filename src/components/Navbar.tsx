@@ -1,77 +1,98 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/0eef50fc-dbda-45e2-bd58-3d08c5481654.png" 
-              alt="CloudBlogger Logo" 
-              className="h-8" 
-            />
+    <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-40">
+      <div className="container flex items-center justify-between py-4">
+        <Link to="/" className="text-2xl font-bold text-gradient">
+          CloudBlogger
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-6">
+          <Link to="/" className="text-foreground/80 hover:text-foreground hover:underline underline-offset-4">
+            Home
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link to="/about" className="text-foreground/80 hover:text-foreground hover:underline underline-offset-4">
+            About
+          </Link>
+          <Link to="/category/azure" className="text-foreground/80 hover:text-foreground hover:underline underline-offset-4">
+            Azure
+          </Link>
+          <Link to="/category/microsoft-365" className="text-foreground/80 hover:text-foreground hover:underline underline-offset-4">
+            Microsoft 365
+          </Link>
+          <Link to="/category/devops" className="text-foreground/80 hover:text-foreground hover:underline underline-offset-4">
+            DevOps
+          </Link>
+          <Button variant="outline" asChild>
+            <Link to="/admin/login">Admin</Link>
+          </Button>
+        </nav>
+
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>
+          {isMenuOpen ? <X /> : <Menu />}
+        </Button>
+      </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white border-b">
+          <nav className="container flex flex-col py-4 space-y-3">
+            <Link 
+              to="/" 
+              className="px-2 py-1 hover:bg-muted rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Home
             </Link>
-            <Link to="/category/azure" className="text-sm font-medium hover:text-azure transition-colors">
+            <Link 
+              to="/about" 
+              className="px-2 py-1 hover:bg-muted rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link 
+              to="/category/azure" 
+              className="px-2 py-1 hover:bg-muted rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Azure
             </Link>
-            <Link to="/category/microsoft-365" className="text-sm font-medium hover:text-m365 transition-colors">
+            <Link 
+              to="/category/microsoft-365" 
+              className="px-2 py-1 hover:bg-muted rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Microsoft 365
             </Link>
-            <Link to="/category/devops" className="text-sm font-medium hover:text-devops transition-colors">
+            <Link 
+              to="/category/devops" 
+              className="px-2 py-1 hover:bg-muted rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
               DevOps
             </Link>
-            <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">
-              About
+            <Link 
+              to="/admin/login" 
+              className="px-2 py-1 bg-primary/10 text-primary rounded"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Admin
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-4">
-          {searchOpen ? (
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full md:w-[200px] h-9 rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-              <button 
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                onClick={() => setSearchOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="h-9 w-9 rounded-md flex items-center justify-center hover:bg-secondary transition-colors"
-              aria-label="Search"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-          )}
-          <Link 
-            to="/admin" 
-            className="h-9 px-3 rounded-md flex items-center justify-center hover:bg-secondary transition-colors"
-            aria-label="Admin"
-          >
-            <User className="h-4 w-4 mr-2" />
-            <span className="hidden md:inline">Admin</span>
-          </Link>
-        </div>
-      </div>
+      )}
     </header>
   );
 };

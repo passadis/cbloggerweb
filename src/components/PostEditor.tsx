@@ -13,7 +13,22 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const PostEditor = ({ post = {} }) => {
+// Define an interface for the post properties
+interface PostData {
+  id?: string;
+  title?: string;
+  content?: string;
+  excerpt?: string;
+  slug?: string;
+  category?: string;
+  date?: Date;
+  tags?: string[];
+  featuredImage?: string;
+  status?: "published" | "draft";
+}
+
+// Use the interface in the component props
+const PostEditor = ({ post = {} as PostData }) => {
   const [title, setTitle] = useState(post.title || "");
   const [content, setContent] = useState(post.content || "");
   const [excerpt, setExcerpt] = useState(post.excerpt || "");
@@ -32,7 +47,7 @@ const PostEditor = ({ post = {} }) => {
     }
   };
 
-  const handleRemoveTag = (tagToRemove) => {
+  const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
@@ -40,7 +55,7 @@ const PostEditor = ({ post = {} }) => {
     setSlug(title.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-'));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here we would handle form submission to a backend
     console.log({
@@ -102,7 +117,7 @@ const PostEditor = ({ post = {} }) => {
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={(newDate) => newDate && setDate(newDate)}
                 initialFocus
               />
             </PopoverContent>

@@ -99,7 +99,7 @@ const transformDatabasePost = (dbPost: PostType): Post => {
 };
 
 // Transform our Post interface to database format
-const transformToDbPost = (post: Omit<Post, "id">): any => {
+const transformToDbPost = (post: Omit<Post, "id">): Database['public']['Tables']['posts']['Insert'] => {
   return {
     title: post.title,
     content: post.content,

@@ -1,8 +1,9 @@
 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database, Post as PostType } from "@/types/database.types";
 
-export interface Post {
+export type Post = {
   id: string;
   title: string;
   content: string;
@@ -13,7 +14,7 @@ export interface Post {
   tags: string[];
   featuredImage: string;
   status: "published" | "draft";
-}
+};
 
 const getAllPosts = async (): Promise<Post[]> => {
   try {
@@ -82,7 +83,7 @@ const getPostBySlug = async (slug: string): Promise<Post | null> => {
 
 // Transform database post object to our Post interface
 // This handles any field name differences between DB and frontend
-const transformDatabasePost = (dbPost: any): Post => {
+const transformDatabasePost = (dbPost: PostType): Post => {
   return {
     id: dbPost.id,
     title: dbPost.title,

@@ -1,8 +1,12 @@
 
 import { Link } from "react-router-dom";
-import { Home, FileText, FolderPlus, Settings } from "lucide-react";
+import { Home, FileText, FolderPlus, Settings, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 const AdminNav = () => {
+  const { logout } = useAdminAuth();
+
   return (
     <div className="bg-slate-900 text-white w-64 min-h-screen p-4 hidden md:block">
       <div className="mb-8">
@@ -25,6 +29,17 @@ const AdminNav = () => {
             <span>Settings</span>
           </Link>
         </nav>
+      </div>
+      
+      <div className="absolute bottom-4 left-4 right-4">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-white hover:bg-slate-800"
+          onClick={logout}
+        >
+          <LogOut size={18} className="mr-2" />
+          <span>Logout</span>
+        </Button>
       </div>
     </div>
   );

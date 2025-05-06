@@ -1,5 +1,6 @@
 
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 interface PostStatusToggleProps {
   isPublished: boolean;
@@ -8,16 +9,14 @@ interface PostStatusToggleProps {
 
 const PostStatusToggle = ({ isPublished, onChange }: PostStatusToggleProps) => {
   return (
-    <div className="flex items-center">
-      <input
-        type="checkbox"
+    <div className="flex items-center space-x-2">
+      <Switch
         id="status"
         checked={isPublished}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+        onCheckedChange={onChange}
       />
-      <Label htmlFor="status" className="ml-2">
-        Publish immediately
+      <Label htmlFor="status">
+        {isPublished ? 'Publish immediately' : 'Save as draft'}
       </Label>
     </div>
   );

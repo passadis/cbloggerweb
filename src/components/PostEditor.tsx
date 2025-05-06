@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,28 +14,33 @@ import CategorySelect from "@/components/post/CategorySelect";
 // Define an interface for the post properties
 interface PostData {
   id?: string;
-  title?: string;
-  content?: string;
-  excerpt?: string;
-  slug?: string;
-  category?: string;
-  date?: Date;
-  tags?: string[];
-  featuredImage?: string;
-  status?: "published" | "draft";
+  title: string;
+  content: string;
+  excerpt: string;
+  slug: string;
+  category: string;
+  date: Date | string;
+  tags: string[];
+  featuredImage: string;
+  status: "published" | "draft";
+}
+
+interface PostEditorProps {
+  post?: PostData;
+  onSubmit?: (formData: Omit<PostData, "id">) => void;
 }
 
 // Use the interface in the component props
-const PostEditor = ({ post = {} as PostData }) => {
-  const [title, setTitle] = useState(post.title || "");
-  const [content, setContent] = useState(post.content || "");
-  const [excerpt, setExcerpt] = useState(post.excerpt || "");
-  const [slug, setSlug] = useState(post.slug || "");
-  const [category, setCategory] = useState(post.category || "");
-  const [date, setDate] = useState(post.date ? new Date(post.date) : new Date());
-  const [tags, setTags] = useState(post.tags || []);
-  const [featuredImage, setFeaturedImage] = useState(post.featuredImage || "");
-  const [isPublished, setIsPublished] = useState(post.status === "published");
+const PostEditor = ({ post, onSubmit }: PostEditorProps) => {
+  const [title, setTitle] = useState(post?.title || "");
+  const [content, setContent] = useState(post?.content || "");
+  const [excerpt, setExcerpt] = useState(post?.excerpt || "");
+  const [slug, setSlug] = useState(post?.slug || "");
+  const [category, setCategory] = useState(post?.category || "");
+  const [date, setDate] = useState(post?.date ? new Date(post.date) : new Date());
+  const [tags, setTags] = useState(post?.tags || []);
+  const [featuredImage, setFeaturedImage] = useState(post?.featuredImage || "");
+  const [isPublished, setIsPublished] = useState(post?.status === "published");
 
   const handleAddTag = (newTag: string) => {
     if (newTag && !tags.includes(newTag)) {
@@ -53,19 +58,25 @@ const PostEditor = ({ post = {} as PostData }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here we would handle form submission to a backend
-    console.log({
+    
+    const formData: Omit<PostData, "id"> = {
       title,
       content,
       excerpt,
       slug,
       category,
-      date,
+      date: date.toISOString().split('T')[0],
       tags,
       featuredImage,
       status: isPublished ? "published" : "draft"
-    });
-    // Save to database/backend would happen here
+    };
+    
+    if (onSubmit) {
+      onSubmit(formData);
+    } else {
+      console.log("Form data:", formData);
+      // If no onSubmit handler provided, we could implement a default behavior
+    }
   };
 
   return (

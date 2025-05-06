@@ -1,58 +1,28 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
 import CategorySection from "@/components/CategorySection";
 import { Link } from "react-router-dom";
 import AuthorCard from "@/components/AuthorCard";
+import { postService, type Post } from "@/services/postService";
+import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
-  // Mock data for demo purposes
-  const [featuredPost] = useState({
-    id: "1",
-    title: "The Ultimate Guide to Build Your Custom AI Server",
-    excerpt: "An Ultimate Guide for AI Development and Hosting: Building your own Custom AI Server with Dashboard and embedded Client UI.",
-    slug: "ultimate-guide-custom-ai-server",
-    featuredImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop",
-    category: "Azure",
-    date: "2023-03-26",
-    tags: ["AI", "Azure", "Azure AI", "Azure AI Foundry", "Azure OpenAI"],
+  // Fetch posts from the database
+  const { 
+    data: posts = [], 
+    isLoading,
+    error 
+  } = useQuery({
+    queryKey: ['posts'],
+    queryFn: postService.getAllPosts,
   });
 
-  const [latestPosts] = useState([
-    {
-      id: "2",
-      title: "The Brand New Azure AI Agent Service at Your Fingertips",
-      excerpt: "Azure AI Agent Service is the newest addition in Azure AI Foundry, making the process of creating Agents easier and fun! Let's see that in action.",
-      slug: "azure-ai-agent-service",
-      featuredImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop",
-      category: "Azure",
-      date: "2023-02-15",
-      tags: ["Azure", "Azure AI", "Azure AI Agent Service", "Azure OpenAI"],
-    },
-    {
-      id: "3",
-      title: "Microsoft 365 Copilot: The Ultimate Productivity Assistant",
-      excerpt: "Learn how Microsoft 365 Copilot is transforming productivity with AI-powered assistance across all Microsoft 365 apps.",
-      slug: "microsoft-365-copilot",
-      featuredImage: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&auto=format&fit=crop",
-      category: "Microsoft 365",
-      date: "2023-04-10",
-      tags: ["Microsoft 365", "Copilot", "AI", "Productivity"],
-    },
-    {
-      id: "4",
-      title: "DevOps Automation: Streamline Your CI/CD Pipeline",
-      excerpt: "Discover best practices for automating your DevOps workflows and optimizing your continuous integration and deployment processes.",
-      slug: "devops-automation-cicd",
-      featuredImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop",
-      category: "DevOps",
-      date: "2023-05-20",
-      tags: ["DevOps", "CI/CD", "Automation", "Pipeline"],
-    },
-  ]);
+  const featuredPost = posts[0];
+  const latestPosts = posts.slice(1, 4);
 
+  // Categories data - we'll keep this static for now
   const categories = [
     {
       title: "Microsoft Azure",
@@ -76,6 +46,40 @@ const Index = () => {
       color: "devops",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
+        <main>
+          <section className="py-12 md:py-16 bg-gradient-to-b from-white to-blue-50/50">
+            <div className="container">
+              <div className="max-w-3xl mx-auto text-center space-y-4">
+                <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+                  Welcome to <span className="text-gradient">CloudBlogger</span>
+                </h1>
+                <p className="text-xl text-muted-foreground">
+                  Your daily companion for Azure Solutions, Microsoft 365 tips, and DevOps best practices
+                </p>
+              </div>
+            </div>
+          </section>
+          <div className="container py-12">
+            <div className="flex flex-col gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-full h-48 bg-muted animate-pulse rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error) {
+    console.error("Error loading posts:", error);
+  }
 
   return (
     <>
@@ -118,7 +122,14 @@ const Index = () => {
         <section className="py-10">
           <div className="container">
             <h2 className="text-2xl font-semibold mb-6">Featured Post</h2>
-            <PostCard post={featuredPost} featured={true} />
+            {featuredPost ? (
+              <PostCard post={featuredPost} featured={true} />
+            ) : (
+              <div className="p-8 border rounded-lg text-center">
+                <h3 className="text-xl font-medium text-muted-foreground">No featured posts yet</h3>
+                <p className="mt-2">Check back later for featured content</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -131,11 +142,18 @@ const Index = () => {
                 View All
               </Link>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {latestPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
+            {latestPosts.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {latestPosts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 border rounded-lg text-center">
+                <h3 className="text-xl font-medium text-muted-foreground">No posts yet</h3>
+                <p className="mt-2">Check back later for latest content</p>
+              </div>
+            )}
           </div>
         </section>
 

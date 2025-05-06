@@ -1,89 +1,54 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import AuthorCard from "@/components/AuthorCard";
 import PostCard from "@/components/PostCard";
+import { postService, type Post } from "@/services/postService";
 
 const PostPage = () => {
-  const { slug } = useParams();
-  const [loading, setLoading] = useState(true);
+  const { slug } = useParams<{ slug: string }>();
   
-  // Mock post data for demo
-  const [post, setPost] = useState({
-    id: "1",
-    title: "The Ultimate Guide to Build Your Custom AI Server",
-    content: `
-      <h2>Intro</h2>
-      <p>Are you ready to unleash the true potential of AI? In this comprehensive guide, we dive into a concept inspired by the principles of the Model Context Protocol (MCP). To begin with, this comprehensive guide dives into a concept inspired by the principles of the Model Context Protocol (MCP). Nevertheless, we showcase a custom AI server built using JavaScript, deployed on AKS, and seamlessly integrated with Azure OpenAI.</p>
-      
-      <p>However, it's important to note that our solution does not leverage official MCP SDKs or APIs. Still, it delivers similar operability. For instance, it enables efficient session management, user roles such as Admin and User, and dynamic chat interactions through an intuitive and user-friendly interface. Consequently, by following this approach, you can discover the endless possibilities of MCP-like functionality, tailored perfectly to your unique needs and use cases. Ultimately, this empowers you to maximize the value derived from AI interactions.</p>
-      
-      <h2>What We Built</h2>
-      <p>In this guide, we present a concept inspired by the principles of the Model Context Protocol (MCP). Specifically it provides functionality such as session management, user role-based access, and seamless integration with Azure OpenAI GPT-4 for conversational AI. Here's what we've built:</p>
-      
-      <ul>
-        <li><strong>MCP Server Concept:</strong> A backend server written in JavaScript, managing active sessions and routing interactions between the client and the Azure OpenAI GPT-4 model. While not utilizing official MCP SDKs or APIs, it achieves similar functionality tailored for our use case.</li>
-        <li><strong>Client Application with Dashboard:</strong> A dynamic frontend that allows users to:
-          <ul>
-            <li>Configure settings.</li>
-            <li>View and manage active sessions.</li>
-            <li>Engage in conversations with the AI model.</li>
-            <li>Track usage metrics and performance statistics.</li>
-          </ul>
-        </li>
-        <li><strong>Azure Integration:</strong> Deployment on Azure Kubernetes Service (AKS) for scalability and reliability, with direct integration to Azure OpenAI services.</li>
-      </ul>
-    `,
-    slug: "ultimate-guide-custom-ai-server",
-    featuredImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&auto=format&fit=crop",
-    category: "Azure",
-    date: "2023-03-26",
-    author: {
-      name: "Konstantinos",
-      bio: "Microsoft MVP with more than 20 years of working experience in IT. Tech enthusiast passionate about Azure, Microsoft 365, and DevOps solutions.",
-      avatar: "",
+  // Fetch the current post
+  const { 
+    data: post,
+    isLoading: postLoading,
+    error: postError 
+  } = useQuery({
+    queryKey: ['post', slug],
+    queryFn: () => {
+      if (!slug) return null;
+      return postService.getPostBySlug(slug);
     },
-    tags: ["AI", "Azure", "Azure AI", "Azure AI Foundry", "Azure OpenAI"],
+    enabled: !!slug
   });
+  
+  // Fetch related posts (currently just getting all posts)
+  const { 
+    data: allPosts = [],
+    isLoading: relatedLoading
+  } = useQuery({
+    queryKey: ['posts'],
+    queryFn: postService.getAllPosts,
+  });
+  
+  // Get related posts based on category
+  const relatedPosts = allPosts
+    .filter(p => p.id !== post?.id && p.category === post?.category)
+    .slice(0, 2);
 
-  // Mock related posts
-  const [relatedPosts] = useState([
-    {
-      id: "2",
-      title: "The Brand New Azure AI Agent Service at Your Fingertips",
-      excerpt: "Azure AI Agent Service is the newest addition in Azure AI Foundry, making the process of creating Agents easier and fun! Let's see that in action.",
-      slug: "azure-ai-agent-service",
-      featuredImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop",
-      category: "Azure",
-      date: "2023-02-15",
-      tags: ["Azure", "Azure AI", "Azure AI Agent Service", "Azure OpenAI"],
-    },
-    {
-      id: "3",
-      title: "Getting Started with Azure OpenAI",
-      excerpt: "A beginner's guide to setting up and using Azure OpenAI services for your applications.",
-      slug: "getting-started-azure-openai",
-      featuredImage: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&auto=format&fit=crop",
-      category: "Azure",
-      date: "2023-01-20",
-      tags: ["Azure", "OpenAI", "AI", "Getting Started"],
-    },
-  ]);
-
-  // Simulate loading effect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [slug]);
+  // Mocked author data since we don't have author info in database yet
+  const author = {
+    name: "Konstantinos",
+    bio: "Microsoft MVP with more than 20 years of working experience in IT. Tech enthusiast passionate about Azure, Microsoft 365, and DevOps solutions.",
+    avatar: "",
+  };
 
   const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
+    switch (category?.toLowerCase()) {
       case 'azure':
         return 'bg-azure/10 text-azure hover:bg-azure/20';
       case 'microsoft 365':
@@ -95,7 +60,7 @@ const PostPage = () => {
     }
   };
 
-  if (loading) {
+  if (postLoading) {
     return (
       <>
         <Navbar />
@@ -109,6 +74,29 @@ const PostPage = () => {
               <div className="h-4 bg-muted rounded"></div>
               <div className="h-4 bg-muted rounded w-5/6"></div>
             </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (postError || !post) {
+    return (
+      <>
+        <Navbar />
+        <main className="container py-16">
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+            <h1 className="text-3xl font-bold">Post Not Found</h1>
+            <p className="text-muted-foreground">
+              Sorry, the post you're looking for doesn't seem to exist.
+            </p>
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-primary hover:underline"
+            >
+              Return to Home
+            </Link>
           </div>
         </main>
         <Footer />
@@ -173,9 +161,9 @@ const PostPage = () => {
             {/* Author Card */}
             <div className="mb-12">
               <AuthorCard
-                name={post.author.name}
-                bio={post.author.bio}
-                avatar={post.author.avatar}
+                name={author.name}
+                bio={author.bio}
+                avatar={author.avatar}
               />
             </div>
           </div>
@@ -185,11 +173,20 @@ const PostPage = () => {
         <section className="py-10 bg-muted/30">
           <div className="container">
             <h2 className="text-2xl font-semibold mb-6">Related Posts</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {relatedPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
+            {relatedPosts.length > 0 ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                {relatedPosts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 border rounded-lg text-center bg-card">
+                <h3 className="text-xl font-medium">No related posts found</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Check back later for more content in this category
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </main>
